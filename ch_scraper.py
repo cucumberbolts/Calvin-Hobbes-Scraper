@@ -21,11 +21,34 @@ HEADERS = {
 }
 
 
-SEARCH_STRING = "Calvin and Hobbes Comic Strip"
+def store_url(month: int, day: int, year: int, url: str) -> None:
+    """ Store the comic url for future use """
+    open("scrapercache", "w").write(f"{month}/{day}/{year} {url}")
+
+
+def retrieve_url(month: int, day: int, year: int) -> str:
+    """ Retrieves the url from the given date
+    returns an empty string if it doesn't exist """
+    url = ""
+
+    # If the cache file exists, then read from it
+    if os.path.isfile("scrapercache"):
+        with open("scrapercache", "r") as reader:
+            for line in reader:
+                date = line[:8]  # Extracts the date
+                if date == f"{month}/{day}/{year}":
+                    url = line[9:]  # line[:9] is the url
+
+    return url
 
 
 def get_comic_url(month: int, day: int, year: int) -> str:
     """ Returns the url of the comic image """
+    # If the url is cached then return it
+    if retrieve_url(month, day, year):
+        print(f"Cached url: {string_thing}")
+        return string_thing
+
     # The url of the comic strip
     url = f"https://www.gocomics.com/calvinandhobbes/{year}/{month}/{day}"
 
@@ -38,12 +61,14 @@ def get_comic_url(month: int, day: int, year: int) -> str:
 
     # Search for the "Calvin and Hobbes Comic Strip" image
     for link in links:
-        if SEARCH_STRING in link["alt"]:
-            # Get the url of the image
-            pic_url = link["src"]
+        if "Calvin and Hobbes Comic Strip" in link["alt"]:
+            pic_url = link["src"]  # Get the url of the image
+            store_url(month, day, year, pic_url)  # Store the url
             return pic_url
 
+    # Returns an empty string if not found
     print("Error: Could not find image!")
+    return ""
 
 
 def save_comic(month: int, day: int, year: int, output_dir: str) -> None:
@@ -81,6 +106,7 @@ def main() -> None:
     save_comic(month, day, year, output_dir)
 
     print("Finished downloading!")
+    input("Press enter to continue: ")
 
 
 if __name__ == "__main__":
