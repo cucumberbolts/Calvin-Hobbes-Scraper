@@ -1,2 +1,2 @@
-# Calvin-Hobbes-Scraper
+# Comic-Scraper
 A program for downloading Calvin and Hobbes comics.
