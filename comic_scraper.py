@@ -1,5 +1,5 @@
 """
-This is a program for downloading Calvin and Hobbes
+This is a program for downloading
 comics from gocomics.com.
 
 See https://hackersandslackers.com/scraping-urls-with-beautifulsoup/ for inspiration
@@ -7,6 +7,7 @@ See https://hackersandslackers.com/scraping-urls-with-beautifulsoup/ for inspira
 authors: Lawrence Cheung and Julian Poon
 """
 
+import argparse
 import time
 import os
 import requests
@@ -37,9 +38,9 @@ def retrieve_url(comic: str, month: int, day: int, year: int) -> str:
         with open("scrapercache.txt", "r") as reader:
             for line in reader:  # Loops through each line in file
                 if comic in line:  # If it's the correct comic
-                    date = line[len(comic) + 1:len(comic) + 9]  # Extracts the date
+                    date = line[len(comic) + 1:len(comic) + 11]  # Extracts the date
                     if date == f"{month}/{day}/{year}":
-                        url = line[len(comic) + 1 + 9:]  # Gets the url
+                        url = line[len(comic) + 1 + 11:]  # Gets the url
                         print(f"cached url: {url}")
 
     return url
@@ -94,8 +95,23 @@ def save_comic(comic: str, month: int, day: int, year: int, output_dir: str) -> 
 
 def main() -> None:
     """ Main function """
-    comic = input("What comic do you want? ")
+    # Parses arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--comic", help="Which comic to download")
+    parser.add_argument("-d", "--date", help="Which date to download from (MM/DD/YYYY)")
 
+    args = parser.parse_args()
+    comic = args.comic
+    date = args.date
+
+    if not comic:
+        comic = input("Comic not specified. Please enter a comic: ")
+    if not date:
+        date = input("Date not specified. Please enter date of comic (MM/DD/YYYY): ")
+
+    month, day, year = [int(x) for x in date.split("/")]
+
+    # For benchmarking
     before = time.time()
 
     # Output directory for the comics
@@ -108,17 +124,12 @@ def main() -> None:
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
 
-    # Set the date to grab the comic
-    year = 2020
-    month = 7
-    day = 2
-
+    # Saves the comic
     print("Starting to download!")
-
     save_comic(comic, month, day, year, output_dir)
-
     print("Finished downloading!")
 
+    # Prints time elapsed
     after = time.time()
     seconds = round(after - before, 3)
     minutes = round(seconds - (seconds % 60))
