@@ -2,14 +2,15 @@
 This is a program for downloading Calvin and Hobbes
 comics from gocomics.com.
 
+See https://hackersandslackers.com/scraping-urls-with-beautifulsoup/ for inspiration
+
 authors: Lawrence Cheung and Julian Poon
 """
 
+import time
 import os
 import requests
 from bs4 import BeautifulSoup
-
-# See https://hackersandslackers.com/scraping-urls-with-beautifulsoup/ for inspiration
 
 # Set the headers
 HEADERS = {
@@ -95,6 +96,8 @@ def main() -> None:
     """ Main function """
     comic = input("What comic do you want? ")
 
+    before = time.time()
+
     # Output directory for the comics
     output_dir = f"Comics/{comic}"
 
@@ -115,6 +118,11 @@ def main() -> None:
     save_comic(comic, month, day, year, output_dir)
 
     print("Finished downloading!")
+
+    after = time.time()
+    seconds = round(after - before, 3)
+    minutes = round(seconds - (seconds % 60))
+    print(f"Time took: {seconds} seconds and {minutes} minutes!")
     input("Press enter to continue: ")
 
 
