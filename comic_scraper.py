@@ -1,6 +1,5 @@
 """
-This is a program for downloading
-comics from gocomics.com.
+This is a program for downloading comics from gocomics.com.
 
 See https://hackersandslackers.com/scraping-urls-with-beautifulsoup/ for inspiration
 
@@ -25,13 +24,12 @@ HEADERS = {
 
 def store_url(comic: str, month: int, day: int, year: int, url: str) -> None:
     """ Store the comic url for future use """
-    open("scrapercache.txt", "w").write(f"{comic} {month}/{day}/{year} {url}")
+    open("scrapercache.txt", "a").write(f"{comic} {month:02}/{day:02}/{year:04} {url}\n")
 
 
 def retrieve_url(comic: str, month: int, day: int, year: int) -> str:
     """ Retrieves the url from the given date
     returns an empty string if it doesn't exist """
-    url = ""
 
     # If the cache file exists, then read from it
     if os.path.isfile("scrapercache.txt"):
@@ -39,15 +37,19 @@ def retrieve_url(comic: str, month: int, day: int, year: int) -> str:
             for line in reader:  # Loops through each line in file
                 if comic in line:  # If it's the correct comic
                     date = line[len(comic) + 1:len(comic) + 11]  # Extracts the date
-                    if date == f"{month}/{day}/{year}":
+                    if date == f"{month:02}/{day:02}/{year:04}":
                         url = line[len(comic) + 1 + 11:]  # Gets the url
                         print(f"cached url: {url}")
+                        return url
 
-    return url
+    return ""
 
 
 def get_comic_url(comic: str, month: int, day: int, year: int) -> str:
     """ Returns the url of the comic image """
+    # Makes comic lowercase just to make things simpler
+    comic = comic.lower()
+
     # If the url is cached then return it
     url = retrieve_url(comic, month, day, year)
     if url:
