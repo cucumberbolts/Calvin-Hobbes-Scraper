@@ -34,20 +34,19 @@ def retrieve_url(comic: str, month: int, day: int, year: int) -> str:
     # If the cache file exists, then read from it
     if os.path.isfile("scrapercache.txt"):
         with open("scrapercache.txt", "r") as reader:
-            for line in reader:  # Loops through each line in file
-                if comic in line:  # If it's the correct comic
-                    date = line[len(comic) + 1:len(comic) + 11]  # Extracts the date
-                    if date == f"{month:02}/{day:02}/{year:04}":
-                        url = line[len(comic) + 1 + 11:]  # Gets the url
-                        print(f"cached url: {url}")
-                        return url
+            search_string = f"{comic} {month:02}/{day:02}/{year:04}"
+            for line in reader:
+                if line[:len(comic) + 11] == search_string:
+                    url = line[len(comic) + 12:]  # Gets the url
+                    print(f"cached url: {url}")
+                    return url
 
     return ""
 
 
 def get_comic_url(comic: str, month: int, day: int, year: int) -> str:
     """ Returns the url of the comic image """
-    # Makes comic lowercase just to make things simpler
+    # Makes comic string lowercase to avoid complication
     comic = comic.lower()
 
     # If the url is cached then return it
@@ -65,7 +64,7 @@ def get_comic_url(comic: str, month: int, day: int, year: int) -> str:
     # Get all links with the lazyload img-fluid class
     links = soup.find_all(class_="lazyload img-fluid")
 
-    # Search for the "Calvin and Hobbes Comic Strip" image
+    # Search for the "[Comic] Comic Strip" image
     search_string = f"{comic} Comic Strip"
     for link in links:
         if search_string.lower() in link["alt"].lower():
@@ -73,17 +72,18 @@ def get_comic_url(comic: str, month: int, day: int, year: int) -> str:
             store_url(comic, month, day, year, pic_url)  # Store the url
             return pic_url
 
-    # Returns an empty string if not found
+    # Returns an empty string if image not found
     print("Error: Could not find image!")
     return ""
 
 
 def save_comic(comic: str, month: int, day: int, year: int, output_dir: str) -> None:
     """ Saves the comic from the given date """
-    print(f"Saving comic from {month}/{day}/{year}!")
-
     # What file to save it as
     file_name = f"{comic}_{year}_{month}_{day}.gif"
+
+    # Prints informaion
+    print(f"Saving comic from {month}/{day}/{year} as {output_dir}/{file_name}")
 
     # Get the url of the comic image
     pic_url = get_comic_url(comic, month, day, year)
@@ -133,9 +133,8 @@ def main() -> None:
 
     # Prints time elapsed
     after = time.time()
-    seconds = round(after - before, 3)
-    minutes = round(seconds - (seconds % 60))
-    print(f"Time took: {seconds} seconds and {minutes} minutes!")
+    seconds = (after - before) % 60
+    print(f"Time took: {seconds:.2f} seconds!")
     input("Press enter to continue: ")
 
 
