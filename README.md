@@ -1,5 +1,5 @@
 # Comic-Scraper
-A program for downloading Calvin and Hobbes comics.
+A single python file for downloading comics from gocomics.com.
 
 ## Usage
 Run the comic_scraper.py file and pass the command line arguments specifying
