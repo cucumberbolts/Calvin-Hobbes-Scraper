@@ -8,6 +8,7 @@ authors: Lawrence Cheung and Julian Poon
 
 import argparse
 import time
+import datetime
 import os
 import requests
 from bs4 import BeautifulSoup
@@ -111,6 +112,8 @@ def main() -> None:
     if not date:
         date = input("Date not specified. Please enter date of comic (MM/DD/YYYY): ")
 
+    if date.lower() == "today":
+        date = datetime.date.today().strftime("%m/%d/%Y")
     month, day, year = [int(x) for x in date.split("/")]
 
     # For benchmarking
